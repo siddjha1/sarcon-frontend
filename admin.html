@@ -34,63 +34,7 @@
     </header>
     <!-- Content section 1-->
     <section id="scroll">
-        <div class="container px-5">
-            <div class="row gx-5 align-items-center">
-                <div class="col-lg-3 order-lg-2">
-
-
-                    <div class="p-5">
-                        <center>
-                            <p>11:00 - 11:45 GMT</p>
-                        </center><img class="img-fluid rounded-circle" src="assets/img/01.jpg" alt="..." />
-                        <center>
-                            <a class="btn btn-danger mt-2 "> Add to calendar</a>
-                        </center>
-
-                    </div>
-                </div>
-                <div class="col-lg-9 order-lg-1">
-                    <div class="p-5">
-                        <h2 class="display-4">Session 1</h2>
-                        <a class="btn btn-primary mt-3 sessionbutton" session_id="1" sessionStatus="1"> Start Session
-                        </a>
-                        <p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor &
-                            Innovation Partner</p>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="scroll">
-        <div class="container px-5">
-            <div class="row gx-5 align-items-center">
-                <div class="col-lg-3 order-lg-2">
-
-
-                    <div class="p-5">
-                        <center>
-                            <p>11:00 - 11:45 GMT</p>
-                        </center><img class="img-fluid rounded-circle" src="assets/img/01.jpg" alt="..." />
-                        <center>
-                            <a class="btn btn-danger mt-2"> Add to calendar</a>
-                        </center>
-
-                    </div>
-                </div>
-                <div class="col-lg-9 order-lg-1">
-                    <div class="p-5">
-                        <h2 class="display-4">Session 2</h2>
-                        <a class="btn btn-primary mt-3 sessionbutton" session_id="2" sessionStatus="1"> Start Session
-                        </a>
-
-                        <p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor &
-                            Innovation Partner</p>
-
-                    </div>
-                </div>
-            </div>
+        <div class="container px-5 sessions" id="sessions">
         </div>
     </section>
 
@@ -107,7 +51,38 @@
     <script src="js/scripts.js"></script>
 </body>
 <script>
-    var conn = new WebSocket('ws://digistyler.com:8080');
+$(document.body).on('click', '.sessionbutton' ,function(){
+        session_number = $(this).attr("session_id");
+        if (conn) {
+            const sessionStatus = $(this).attr("sessionStatus");
+            conn.send('{"session_no": "' + session_number + '","status": ' + sessionStatus + '}');
+            $(this).toggleClass("btn-danger btn-primary");
+            $(this).attr('sessionStatus', $(this).attr('sessionStatus') === '1' ? '0' : '1');
+            $(this).html() == "Stop Session" ? $(this).html('Start Session') : $(this).html('Stop Session');
+        }
+    });
+
+    $.getJSON("http://localhost/event-data.json", function (json) {
+        var index = 0;
+        json.forEach(function (data) {
+            // since we're dealing with the entire match rather than match group 1
+            // we'll want to chop off the first "[" and last char "]" via substring
+            if(data.status == 1)
+            {
+                $('#sessions').append('<div class="row gx-5 align-items-center session"><div class="col-lg-3 order-lg-2"> <div class="p-5" > <center> <p> ' + data.Time + '</p> </center><img class="img-fluid rounded-circle" src="assets/img/01.jpg" alt="..." /> <center> <a class="btn btn-danger mt-2 "> Add to calendar</a> </center> </div> </div> <div class="col-lg-9 order-lg-1"> <div class="p-5"> <h2 class="display-4">Session ' + (index + 1) + '</h2> <a class="btn btn-danger mt-3 sessionbutton" session_id="' + index + '" sessionStatus="' + data.status + '"> Stop Session </a> <p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor & Innovation Partner</p> </div> </div> </div>');
+            }
+            else if(data.status == 0)
+            {
+                $('#sessions').append('<div class="row gx-5 align-items-center session"><div class="col-lg-3 order-lg-2"> <div class="p-5" > <center> <p> ' + data.Time + '</p> </center><img class="img-fluid rounded-circle" src="assets/img/01.jpg" alt="..." /> <center> <a class="btn btn-danger mt-2 "> Add to calendar</a> </center> </div> </div> <div class="col-lg-9 order-lg-1"> <div class="p-5"> <h2 class="display-4">Session ' + (index + 1) + '</h2> <a class="btn btn-primary mt-3 sessionbutton" session_id="' + index + '" sessionStatus="' + data.status + '"> Start Session</a> <p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor & Innovation Partner</p> </div> </div> </div>');
+            }
+            index++
+        });
+
+    });
+
+
+
+    var conn = new WebSocket('ws://localhost:8080');
     conn.onopen = function (e) {
         console.log("Connection established!");
     };
@@ -116,16 +91,7 @@
         console.log(e.data);
     };
 
-    $('.sessionbutton').click(function () {
-        session_number = $(this).attr("session_id");
-        if (conn) {
-            const sessionStatus = $(this).attr("sessionStatus");
-            conn.send('{"session_no": "' + session_number + '","status": '+sessionStatus+'}');
-            $(this).toggleClass("btn-danger btn-primary");
-            $(this).attr('sessionStatus',$(this).attr('sessionStatus')==='1'?'0':'1' );
-            $(this).html() == "Stop Session" ? $(this).html('Start Session') : $(this).html('Stop Session');
-        }
-    });
+
 </script>
 
 

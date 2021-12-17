@@ -34,63 +34,11 @@
         <div class="bg-circle-4 bg-circle"></div>
     </header>
     <!-- Content section 1-->
-    <section id="scroll">
-        <div class="container px-5">
-            <div class="row gx-5 align-items-center">
-                <div class="col-lg-3 order-lg-2">
-
-
-                    <div class="p-5">
-                        <center>
-                            <p>11:00 - 11:45 GMT</p>
-                        </center><img class="img-fluid rounded-circle" src="assets/img/01.jpg" alt="..." />
-                        <center>
-                            <a class="btn btn-danger mt-2 " disabled="true"> Add to calendar</a>
-                        </center>
-
-                    </div>
-                </div>
-                <div class="col-lg-9 order-lg-1">
-                    <div class="p-5">
-                        <h2 class="display-4">Session 1</h2>
-                        <a class="btn btn-primary mt-3 disabled" id="session_1_button" disabled> Join As Audience </a>
-                        <a class="btn btn-primary mt-3 disabled" disabled> Join As Speaker </a>
-                        <p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor &
-                            Innovation Partner</p>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <section id="scroll">
-        <div class="container px-5">
-            <div class="row gx-5 align-items-center">
-                <div class="col-lg-3 order-lg-2">
+        <div class="container px-5" id="sessions">
 
 
-                    <div class="p-5">
-                        <center>
-                            <p>11:00 - 11:45 GMT</p>
-                        </center><img class="img-fluid rounded-circle" src="assets/img/01.jpg" alt="..." />
-                        <center>
-                            <a class="btn btn-danger mt-2 " disabled="true"> Add to calendar</a>
-                        </center>
-
-                    </div>
-                </div>
-                <div class="col-lg-9 order-lg-1">
-                    <div class="p-5">
-                        <h2 class="display-4">Session 2</h2>
-                        <a class="btn btn-primary mt-3 disabled" id="session_2_button"> Join As Audience </a>
-                        <a class="btn btn-primary mt-3 disabled"> Join As Speaker </a>
-                        <p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor &
-                            Innovation Partner</p>
-
-                    </div>
-                </div>
-            </div>
         </div>
     </section>
 
@@ -107,23 +55,41 @@
     <script src="js/scripts.js"></script>
 </body>
 <script>
-    var conn = new WebSocket('ws://digistyler.com:8080');
+    $.getJSON("http://localhost/event-data.json", function (json) {
+        var index = 0;
+        json.forEach(function (data) {
+            // since we're dealing with the entire match rather than match group 1
+            // we'll want to chop off the first "[" and last char "]" via substring
+            if(data.status == 0)
+            {
+            $('#sessions').append('<div class="row gx-5 align-items-center session"><div class="col-lg-3 order-lg-2"><div class="p-5"><center> <p>'+data.Time+'</p></center><img class="img-fluid rounded-circle" src="assets/img/01.jpg" alt="..." /><center><a class="btn btn-danger mt-2 " disabled="true"> Add to calendar</a></center></div> </div><div class="col-lg-9 order-lg-1"><div class="p-5"><h2 class="display-4">Session '+(index + 1)+'</h2><a class="btn btn-primary mt-3 disabled" style="margin-right:1em" id="session_'+index+'_button" disabled> Join As Audience </a><a class="btn btn-primary mt-3 disabled" disabled> Join As Speaker </a><p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor &Innovation Partner</p></div></div></div>');
+            }
+            else if(data.status == 1)
+            {
+            $('#sessions').append('<div class="row gx-5 align-items-center session"><div class="col-lg-3 order-lg-2"><div class="p-5"><center> <p>'+data.Time+'</p></center><img class="img-fluid rounded-circle" src="assets/img/01.jpg" alt="..." /><center><a class="btn btn-danger mt-2 " disabled="true"> Add to calendar</a></center></div> </div><div class="col-lg-9 order-lg-1"><div class="p-5"><h2 class="display-4">Session '+(index + 1)+'</h2><a class="btn btn-primary mt-3 " style="margin-right:1em" id="session_'+index+'_button" > Join As Audience </a><a class="btn btn-primary mt-3 disabled" disabled> Join As Speaker </a><p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor &Innovation Partner</p></div></div></div>');
+            }
+            index++
+        });
+
+    });
+    var conn = new WebSocket('ws://localhost:8080');
     conn.onopen = function (e) {
         console.log("Connection established!");
     };
 
     conn.onmessage = function (e) {
         const obj = JSON.parse(e.data);
-        if(obj.status == "1")
-        {
+        if (obj.status == "1") {
             $("#session_" + obj.session_no + "_button").removeClass("disabled");
         }
-        else if(obj.status == "0")
-        {
+        else if (obj.status == "0") {
             $("#session_" + obj.session_no + "_button").addClass("disabled");
         }
-
     };
+
+    conn.onerror = function (e) {
+        console.log(e)
+    }
 </script>
 
 </html>
