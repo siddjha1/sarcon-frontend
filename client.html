@@ -107,14 +107,21 @@
     <script src="js/scripts.js"></script>
 </body>
 <script>
-    var conn = new WebSocket('ws://localhost:8080');
+    var conn = new WebSocket('ws://digistyler.com:8080');
     conn.onopen = function (e) {
         console.log("Connection established!");
     };
 
     conn.onmessage = function (e) {
         const obj = JSON.parse(e.data);
-        $("#session_" + obj.session_no + "_button").removeClass("disabled")
+        if(obj.status == "1")
+        {
+            $("#session_" + obj.session_no + "_button").removeClass("disabled");
+        }
+        else if(obj.status == "0")
+        {
+            $("#session_" + obj.session_no + "_button").addClass("disabled");
+        }
 
     };
 </script>

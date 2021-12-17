@@ -52,7 +52,8 @@
                 <div class="col-lg-9 order-lg-1">
                     <div class="p-5">
                         <h2 class="display-4">Session 1</h2>
-                        <a class="btn btn-primary mt-3 startsession" session_id="1"> Start Session </a>
+                        <a class="btn btn-primary mt-3 sessionbutton" session_id="1" sessionStatus="1"> Start Session
+                        </a>
                         <p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor &
                             Innovation Partner</p>
 
@@ -81,7 +82,8 @@
                 <div class="col-lg-9 order-lg-1">
                     <div class="p-5">
                         <h2 class="display-4">Session 2</h2>
-                        <a class="btn btn-primary mt-3 startsession" session_id="2"> Start Session </a>
+                        <a class="btn btn-primary mt-3 sessionbutton" session_id="2" sessionStatus="1"> Start Session
+                        </a>
 
                         <p><span style="color:red;font-weight:900;"> Opening address </span>by Diamond Sponsor &
                             Innovation Partner</p>
@@ -105,7 +107,7 @@
     <script src="js/scripts.js"></script>
 </body>
 <script>
-    var conn = new WebSocket('ws://localhost:8080');
+    var conn = new WebSocket('ws://digistyler.com:8080');
     conn.onopen = function (e) {
         console.log("Connection established!");
     };
@@ -114,14 +116,15 @@
         console.log(e.data);
     };
 
-    $('.startsession').click(function () {
+    $('.sessionbutton').click(function () {
         session_number = $(this).attr("session_id");
         if (conn) {
-            conn.send('{"session_no": "' + session_number + '","status": 1}');
-            $(this).addClass("disabled");
-            $(this).html("Session Started");
+            const sessionStatus = $(this).attr("sessionStatus");
+            conn.send('{"session_no": "' + session_number + '","status": '+sessionStatus+'}');
+            $(this).toggleClass("btn-danger btn-primary");
+            $(this).attr('sessionStatus',$(this).attr('sessionStatus')==='1'?'0':'1' );
+            $(this).html() == "Stop Session" ? $(this).html('Start Session') : $(this).html('Stop Session');
         }
-        
     });
 </script>
 
